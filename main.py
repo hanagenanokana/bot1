@@ -34,8 +34,13 @@ class MyClient(discord.Client):
 
 client = MyClient()
 
-@client.tree.command(name="ping", description="Ping")
+@client.tree.command(name="uso", description="餅")
 async def ping(interaction: discord.Interaction):
-    await interaction.response.send_message("Pong!")
+    await interaction.response.send_message("噓つきは餅の始まり")
+
+@client.tree.command(name="stats", description="stats")
+async def hello(interaction: discord.Interaction):
+    await interaction.response.send_message("雑魚！wwwwwwwwwww")
+
 
 client.run(TOKEN)
