@@ -15,7 +15,7 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(b"Bot is running")
 
 def run_web():
-    server = HTTPServer(("0.0.0.0", 8080), Handler)
+    server = HTTPServer(("0.0.0.0", 8000), Handler)
     server.serve_forever()
 
 threading.Thread(target=run_web).start()
