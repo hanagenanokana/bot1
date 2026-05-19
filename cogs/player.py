@@ -1,3 +1,8 @@
+from discord.ext import commands
+from discord import app_commands
+import discord
+
+
 # プレイヤーデータに関するコマンド
 class Player(commands.Cog):
     def __init__(self, bot: commands.Bot):
