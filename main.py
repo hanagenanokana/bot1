@@ -30,8 +30,8 @@ bot = commands.Bot(
 
 # ===== Cog Load =====
 async def load():
-    await bot.load_extension("cogs.ping")
-    await bot.load_extension("cogs.hello")
+    await bot.load_extension("cogs.stats")
+    await bot.load_extension("cogs.uso")
     await bot.load_extension("cogs.dice")
 
 @bot.event
