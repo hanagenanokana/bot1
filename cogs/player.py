@@ -7,12 +7,11 @@ import statistics
 from services.lounge_api import fetch_mmr
 from services.lounge_api import fetch_peak
 
-# プレイヤーデータに関するコマンド
 class Player(commands.Cog):
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot):
         self.bot = bot
 
-    # ラウンジデータ取得・Embed作成関数
+    # 共通処理
     async def _average_mmr_command(
         self,
         interaction: discord.Interaction,
@@ -23,6 +22,7 @@ class Player(commands.Cog):
         await interaction.response.defer()
 
         members = [m for m in role.members if not m.bot]
+
         if not members:
             await interaction.followup.send("そのロールにメンバーがいません。")
             return
@@ -39,6 +39,7 @@ class Player(commands.Cog):
             if value is None:
                 skipped += 1
                 continue
+
             values.append(value)
             lines.append(f"{member.display_name}: **{value}**")
 
@@ -49,37 +50,55 @@ class Player(commands.Cog):
         avg = int(statistics.mean(values))
 
         embed = discord.Embed(
-            title=f"{role.name} の{title_suffix}",
+            title=f"{role.name} の {title_suffix}",
             description="\n".join(lines[:20]),
             color=discord.Color.green()
         )
-        embed.add_field(name="平均", value=f"**{avg}**", inline=False)
-        embed.set_footer(text=f"{len(values)}人分 | placement {skipped}人")
+
+        embed.add_field(
+            name="平均",
+            value=f"**{avg}**",
+            inline=False
+        )
+
+        embed.set_footer(
+            text=f"{len(values)}人分 | placement {skipped}人"
+        )
 
         await interaction.followup.send(embed=embed)
 
-    # /team mmr role:○○
-    @app_commands.command(name="team_mmr")
+    # /team_mmr
+    @app_commands.command(
+        name="team_mmr",
+        description="MMR一覧"
+    )
     async def team_mmr(
         self,
         interaction: discord.Interaction,
         role: discord.Role
     ):
-        """mmrリスト・平均の表示"""
         await self._average_mmr_command(
-            interaction, role, fetch_mmr, "MMR"
+            interaction,
+            role,
+            fetch_mmr,
+            "MMR"
         )
 
-    # /team peak role:○○
-    @app_commands.command(name="team_peak")
+            # /team_peak
+    @app_commands.command(
+        name="team_peak",
+        description="Peak一覧"
+    )
     async def team_peak(
         self,
         interaction: discord.Interaction,
         role: discord.Role
     ):
-        """peakmmrリスト・平均の表示"""
         await self._average_mmr_command(
-            interaction, role, fetch_peak, "Peak MMR"
+            interaction,
+            role,
+            fetch_peak,
+            "Peak MMR"
         )
 
 async def setup(bot):
