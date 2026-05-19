@@ -82,6 +82,12 @@ int(target.timestamp())
 
             text = " ".join(members)
 
+            notice = ""
+
+            6人以上
+           if len(members) >= 6:
+           notice = f"\n\n{time}時生存確認"
+
             lines.append(
                 f"<t:{timestamp}:t>　{len(members)}人\n{text}"
             )
