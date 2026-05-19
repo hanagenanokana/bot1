@@ -122,9 +122,11 @@ int(target.timestamp())
             await ctx.author.remove_roles(role)
 
             # タイムスタンプ
-            now = datetime.datetime.now()
+            jst = datetime.timezone(
+            datetime.timedelta(hours=9)
+            )
 
-            hour = int(time)
+            now = datetime.datetime.now(jst)
 
             target = now.replace(
                 hour=hour,
