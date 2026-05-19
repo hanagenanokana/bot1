@@ -1,9 +1,9 @@
+import discord
+from discord.ext import commands
+import asyncio
 import os
 import threading
 from http.server import HTTPServer, BaseHTTPRequestHandler
-
-import discord
-from discord import app_commands
 
 TOKEN = os.getenv("TOKEN")
 
@@ -21,26 +21,26 @@ def run_web():
 threading.Thread(target=run_web).start()
 
 # ===== Discord Bot =====
-class MyClient(discord.Client):
-    def __init__(self):
-        intents = discord.Intents.default()
-        super().__init__(intents=intents)
+intents = discord.Intents.default()
 
-        self.tree = app_commands.CommandTree(self)
+bot = commands.Bot(
+    command_prefix="!",
+    intents=intents
+)
 
-    async def setup_hook(self):
-        await self.tree.sync()
-        print("同期完了")
+# ===== Cog Load =====
+async def load():
+    await bot.load_extension("cogs.ping")
+    await bot.load_extension("cogs.hello")
+    await bot.load_extension("cogs.dice")
 
-client = MyClient()
+@bot.event
+async def on_ready():
+    print(f"ログイン成功: {bot.user}")
 
-@client.tree.command(name="uso", description="餅")
-async def ping(interaction: discord.Interaction):
-    await interaction.response.send_message("噓つきは餅の始まり")
+async def main():
+    async with bot:
+        await load()
+        await bot.start(TOKEN)
 
-@client.tree.command(name="stats", description="stats")
-async def hello(interaction: discord.Interaction):
-    await interaction.response.send_message("雑魚！wwwwwwwwwww")
-
-
-client.run(TOKEN)
+asyncio.run(main())
