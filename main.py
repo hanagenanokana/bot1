@@ -23,6 +23,7 @@ threading.Thread(target=run_web).start()
 # ===== Discord Bot =====
 intents = discord.Intents.default()
 intents.members = True
+intents.message_content = True
 
 bot = commands.Bot(
     command_prefix="!",
