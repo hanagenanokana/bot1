@@ -30,10 +30,13 @@ bot = commands.Bot(
 
 # ===== Cog Load =====
 async def load():
+    await bot.load_extension("cogs.stats")
+    await bot.load_extension("cogs.uso")
     await bot.load_extension("cogs.dice")
 
 @bot.event
 async def on_ready():
+    await bot.tree.sync()
     print(f"ログイン成功: {bot.user}")
 
 async def main():
