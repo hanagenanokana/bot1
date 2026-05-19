@@ -2,6 +2,8 @@ from discord.ext import commands
 from discord import app_commands
 import discord
 
+from services.lounge_api import fetch_mmr
+from services.lounge_api import fetch_peak
 
 # プレイヤーデータに関するコマンド
 class Player(commands.Cog):
@@ -55,8 +57,8 @@ class Player(commands.Cog):
         await interaction.followup.send(embed=embed)
 
     # /team mmr role:○○
-    @app_commands.command(name="team-mmr")
-    async def team-mmr(
+    @app_commands.command(name="team mmr")
+    async def team mmr(
         self,
         interaction: discord.Interaction,
         role: discord.Role
@@ -67,8 +69,8 @@ class Player(commands.Cog):
         )
 
     # /team peak role:○○
-    @app_commands.command(name="team-peak")
-    async def team-peak(
+    @app_commands.command(name="team peak")
+    async def team peak(
         self,
         interaction: discord.Interaction,
         role: discord.Role
