@@ -6,107 +6,139 @@ class RankRole(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    # 時間解析
+    def parse_times(self, args):
+
+        times = set()
+
+        for arg in args:
+
+            # 20-22
+            if "-" in arg:
+
+                start, end = arg.split("-")
+
+                start = int(start)
+                end = int(end)
+
+                for t in range(start, end + 1):
+                    times.add(str(t))
+
+            # 単体
+            else:
+                times.add(arg)
+
+        return sorted(times, key=int)
+
     # 参加
     @commands.command()
-    async def c(self, ctx, time: str):
+    async def c(self, ctx, *args):
 
-        # ロール名
-        role_name = time
+        times = self.parse_times(args)
 
-        # ロール取得
-        role = discord.utils.get(
-            ctx.guild.roles,
-            name=role_name
-        )
+        lines = []
 
-        # 無ければ作成
-        if role is None:
-            role = await ctx.guild.create_role(
+        for time in times:
+
+            role_name = time
+
+            # ロール取得
+            role = discord.utils.get(
+                ctx.guild.roles,
                 name=role_name
             )
 
-        # ロール付与
-        await ctx.author.add_roles(role)
+            # 無ければ作成
+            if role is None:
+                role = await ctx.guild.create_role(
+                    name=role_name
+                )
 
-        # 現在時刻
-        now = datetime.datetime.now()
+            # ロール付与
+            await ctx.author.add_roles(role)
 
-        # 入力時間
-        hour = int(time)
+            # タイムスタンプ
+            now = datetime.datetime.now()
 
-        # 今日のその時間
-        target = now.replace(
-            hour=hour,
-            minute=0,
-            second=0,
-            microsecond=0
-        )
+            hour = int(time)
 
-        # UnixTime
-        timestamp = int(target.timestamp())
+            target = now.replace(
+                hour=hour,
+                minute=0,
+                second=0,
+                microsecond=0
+            )
 
-        # 人間メンバー取得
-        members = [
-            m.mention
-            for m in role.members
-            if not m.bot
-        ]
+            timestamp =
 
-        # 表示
-        text = " ".join(members)
+int(target.timestamp())
 
-        await ctx.send(
-            f"<t:{timestamp}:t>　{len(members)}人\n{text}"
-        )
+            # メンバー
+            members = [
+                m.mention
+                for m in role.members
+                if not m.bot
+            ]
+
+            text = " ".join(members)
+
+            lines.append(
+                f"<t:{timestamp}:t>　{len(members)}人\n{text}"
+            )
+
+        await ctx.send("\n\n".join(lines))
 
     # 離脱
     @commands.command()
-    async def d(self, ctx, time: str):
+    async def d(self, ctx, *args):
 
-        role_name = time
+        times = self.parse_times(args)
 
-        # ロール取得
-        role = discord.utils.get(
-            ctx.guild.roles,
-            name=role_name
-        )
+        lines = []
 
-        if role is None:
-            return
+        for time in times:
 
-        # ロール削除
-        await ctx.author.remove_roles(role)
+            role_name = time
 
-        # 現在時刻
-        now = datetime.datetime.now()
+            role = discord.utils.get(
+                ctx.guild.roles,
+                name=role_name
+            )
 
-        # 入力時間
-        hour = int(time)
+            if role is None:
+                continue
 
-        # 今日のその時間
-        target = now.replace(
-            hour=hour,
-            minute=0,
-            second=0,
-            microsecond=0
-        )
+            # ロール削除
+            await ctx.author.remove_roles(role)
 
-        # UnixTime
-        timestamp = int(target.timestamp())
+            # タイムスタンプ
+            now = datetime.datetime.now()
 
-        # 人間メンバー取得
-        members = [
-            m.mention
-            for m in role.members
-            if not m.bot
-        ]
+            hour = int(time)
 
-        # 表示
-        text = " ".join(members)
+            target = now.replace(
+                hour=hour,
+                minute=0,
+                second=0,
+                microsecond=0
+            )
 
-        await ctx.send(
-            f"<t:{timestamp}:t>　{len(members)}人\n{text}"
-        )
+            timestamp = int(target.timestamp())
+
+            # メンバー
+            members = [
+                m.mention
+                for m in role.members
+                if not m.bot
+            ]
+
+            text = " ".join(members)
+
+            lines.append(
+                f"<t:{timestamp}:t>　{len(members)}人\n{text}"
+            )
+
+        await ctx.send("\n\n".join(lines))
 
 async def setup(bot):
     await bot.add_cog(RankRole(bot))
