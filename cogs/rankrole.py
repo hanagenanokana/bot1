@@ -58,7 +58,11 @@ class RankRole(commands.Cog):
             await ctx.author.add_roles(role)
 
             # タイムスタンプ
-            now = datetime.datetime.now()
+            jst = datetime.timezone(
+            datetime.timedelta(hours=9)
+            )
+
+            now = datetime.datetime.now(jst)
 
             hour = int(time)
 
