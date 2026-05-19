@@ -21,6 +21,9 @@ class Player(commands.Cog):
     ):
         await interaction.response.defer()
 
+        print(role.members)
+        print(len(role.members))
+
         members = [m for m in role.members if not m.bot]
 
         if not members:
