@@ -34,7 +34,12 @@ async def load():
 
 @bot.event
 async def on_ready():
-    await bot.tree.sync()
+    try:
+        synced = await bot.tree.sync()
+        print(f"{len(synced)}個のコマンドを同期しました")
+    except Exception as e:
+        print(e)
+
     print(f"ログイン成功: {bot.user}")
 
 async def main():
