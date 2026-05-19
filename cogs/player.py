@@ -55,8 +55,8 @@ class Player(commands.Cog):
         await interaction.followup.send(embed=embed)
 
     # /team mmr role:○○
-    @app_commands.command(name="team mmr")
-    async def team mmr(
+    @app_commands.command(name="team-mmr")
+    async def team-mmr(
         self,
         interaction: discord.Interaction,
         role: discord.Role
@@ -67,8 +67,8 @@ class Player(commands.Cog):
         )
 
     # /team peak role:○○
-    @app_commands.command(name="team peak")
-    async def team peak(
+    @app_commands.command(name="team-peak")
+    async def team-peak(
         self,
         interaction: discord.Interaction,
         role: discord.Role
