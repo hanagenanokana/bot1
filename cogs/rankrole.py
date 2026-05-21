@@ -122,7 +122,11 @@ class RankRole(commands.Cog):
 
             # 6人以上
             if len(members) >= 6:
-                notice = f"\n\n{role.mention} 生存確認"
+                notice = (
+    f"\n\n"
+    f"{role.mention}時 "
+    f"{len(members)}人集まったよ"
+)
 
             lines.append(
                 f"<t:{timestamp}:t>　{len(members)}人\n{text}{notice}"
