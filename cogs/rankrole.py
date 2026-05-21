@@ -40,6 +40,7 @@ class RankRole(commands.Cog):
 
         roles = []
 
+        # 数字ロールのみ取得
         for role in guild.roles:
 
             if role.name.isdigit():
@@ -108,21 +109,19 @@ class RankRole(commands.Cog):
 
         old_message = self.status_messages.get(ctx.guild.id)
 
-        # 既存メッセージ編集
+        # 古い一覧削除
         if old_message:
 
             try:
-                await old_message.edit(
-                    content=message_text
-                )
-                return
+                await old_message.delete()
 
             except:
                 pass
 
-        # 新規送信
+        # 新しい一覧送信
         new_message = await ctx.send(message_text)
 
+        # 保存
         self.status_messages[ctx.guild.id] = new_message
 
     # ===== 参加 =====
@@ -132,7 +131,7 @@ class RankRole(commands.Cog):
     )
     async def can(self, ctx, *args):
 
-        # 引数なしなら一覧
+        # 引数無しなら一覧表示
         if not args:
             await self.update_message(ctx)
             return
@@ -165,7 +164,7 @@ class RankRole(commands.Cog):
     )
     async def drop(self, ctx, *args):
 
-        # 引数なしなら一覧
+        # 引数無しなら一覧表示
         if not args:
             await self.update_message(ctx)
             return
@@ -193,7 +192,11 @@ class RankRole(commands.Cog):
                 # 0人ならロール削除
                 if len(human_members) == 0:
 
-                    await role.delete()
+                    try:
+                        await role.delete()
+
+                    except:
+                        pass
 
         await self.update_message(ctx)
 
