@@ -37,7 +37,7 @@ class RankRole(commands.Cog):
 
         roles = []
 
-        # 数字ロールだけ取得
+        # 数字ロールのみ取得
         for role in guild.roles:
 
             if role.name.isdigit():
@@ -104,9 +104,7 @@ class RankRole(commands.Cog):
 
         message_text = self.build_message(ctx.guild)
 
-        target_message = None
-
-        # BOTの最新一覧を探す
+        # BOTの古い一覧を削除
         async for message in ctx.channel.history(limit=20):
 
             if (
@@ -116,33 +114,24 @@ class RankRole(commands.Cog):
                     or "人" in message.content
                 )
             ):
-                target_message = message
-                break
 
-        # 編集
-        if target_message:
+                try:
+                    await message.delete()
 
-            try:
-                await target_message.edit(
-                    content=message_text
-                )
-                return
+                except:
+                    pass
 
-            except:
-                pass
-
-        # 無ければ新規送信
+        # 新しい一覧送信
         await ctx.send(message_text)
 
     # ===== 参加 =====
     @commands.command(
         name="can",
-        aliases=["c"],
-        case_insensitive=True
+        aliases=["c"]
     )
     async def can(self, ctx, *args):
 
-        # 引数無し
+        # 引数無しなら一覧表示
         if not args:
             await self.update_message(ctx)
             return
@@ -171,12 +160,11 @@ class RankRole(commands.Cog):
     # ===== 離脱 =====
     @commands.command(
         name="drop",
-        aliases=["d"],
-        case_insensitive=True
+        aliases=["d"]
     )
     async def drop(self, ctx, *args):
 
-        # 引数無し
+        # 引数無しなら一覧表示
         if not args:
             await self.update_message(ctx)
             return
@@ -195,7 +183,7 @@ class RankRole(commands.Cog):
                 # ロール削除
                 await ctx.author.remove_roles(role)
 
-                # BOT除外
+                # 人間だけ取得
                 members = [
                     m for m in role.members
                     if not m.bot
@@ -214,8 +202,7 @@ class RankRole(commands.Cog):
 
     # ===== 現在一覧 =====
     @commands.command(
-        name="now",
-        case_insensitive=True
+        name="now"
     )
     async def now(self, ctx):
 
@@ -223,8 +210,7 @@ class RankRole(commands.Cog):
 
     # ===== 全削除 =====
     @commands.command(
-        name="clear",
-        case_insensitive=True
+        name="clear"
     )
     async def clear(self, ctx):
 
@@ -238,7 +224,7 @@ class RankRole(commands.Cog):
 
         for role in roles:
 
-            # 全員からロール削除
+            # 全員から削除
             for member in role.members:
 
                 try:
