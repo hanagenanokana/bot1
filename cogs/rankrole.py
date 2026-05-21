@@ -16,7 +16,7 @@ class RankRole(commands.Cog):
 
             arg = arg.strip()
 
-            # 20-22
+            # 範囲指定
             if "-" in arg:
 
                 try:
@@ -115,6 +115,7 @@ class RankRole(commands.Cog):
             if len(members) == 0:
                 continue
 
+            # 横並び
             text = " ".join(members)
 
             notice = ""
@@ -163,7 +164,16 @@ class RankRole(commands.Cog):
         name="can",
         aliases=["c"]
     )
-    async def can(self, ctx, *args):
+    async def can(
+        self,
+        ctx,
+        members: commands.Greedy[discord.Member],
+        *args
+    ):
+
+        # メンション無しなら自分
+        if not members:
+            members = [ctx.author]
 
         # 引数無し
         if not args:
@@ -186,8 +196,9 @@ class RankRole(commands.Cog):
                     name=time
                 )
 
-            # ロール付与
-            await ctx.author.add_roles(role)
+            # 全員付与
+            for member in members:
+                await member.add_roles(role)
 
         await self.update_message(ctx)
 
@@ -196,7 +207,16 @@ class RankRole(commands.Cog):
         name="drop",
         aliases=["d"]
     )
-    async def drop(self, ctx, *args):
+    async def drop(
+        self,
+        ctx,
+        members: commands.Greedy[discord.Member],
+        *args
+    ):
+
+        # メンション無しなら自分
+        if not members:
+            members = [ctx.author]
 
         # 引数無し
         if not args:
@@ -214,17 +234,18 @@ class RankRole(commands.Cog):
 
             if role:
 
-                # ロール削除
-                await ctx.author.remove_roles(role)
+                # 全員削除
+                for member in members:
+                    await member.remove_roles(role)
 
                 # BOT除外
-                members = [
+                remain_members = [
                     m for m in role.members
                     if not m.bot
                 ]
 
                 # 0人ならロール削除
-                if len(members) == 0:
+                if len(remain_members) == 0:
 
                     try:
                         await role.delete()
