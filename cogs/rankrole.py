@@ -134,7 +134,7 @@ class RankRole(commands.Cog):
 
         # 誰もいない
         if not lines:
-            return "現在挙手なし"
+            return "誰もいないよ"
 
         return "\n\n".join(lines)
 
@@ -149,7 +149,7 @@ class RankRole(commands.Cog):
             if (
                 message.author == self.bot.user
                 and (
-                    "現在挙手なし" in message.content
+                    "誰もいないよ" in message.content
                     or "人" in message.content
                 )
             ):
