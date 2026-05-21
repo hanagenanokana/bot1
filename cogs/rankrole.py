@@ -85,7 +85,7 @@ class RankRole(commands.Cog):
 
             # メンバー
             members = [
-                m.mention
+                m.display_name
                 for m in role.members
                 if not m.bot
             ]
