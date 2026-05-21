@@ -3,6 +3,7 @@ import discord
 import datetime
 
 class RankRole(commands.Cog):
+
     def __init__(self, bot):
         self.bot = bot
 
@@ -31,8 +32,11 @@ class RankRole(commands.Cog):
         return sorted(times, key=int)
 
     # 参加
-    @commands.command()
-    async def c(self, ctx, *args):
+    @commands.command(
+        name="can",
+        aliases=["c"]
+    )
+    async def can(self, ctx, *args):
 
         times = self.parse_times(args)
 
@@ -57,15 +61,18 @@ class RankRole(commands.Cog):
             # ロール付与
             await ctx.author.add_roles(role)
 
-            # タイムスタンプ
+            # JST
             jst = datetime.timezone(
-            datetime.timedelta(hours=9)
+                datetime.timedelta(hours=9)
             )
 
+            # 現在時刻
             now = datetime.datetime.now(jst)
 
+            # 入力時間
             hour = int(time)
 
+            # JSTの指定時間
             target = now.replace(
                 hour=hour,
                 minute=0,
@@ -73,9 +80,8 @@ class RankRole(commands.Cog):
                 microsecond=0
             )
 
-            timestamp =
-
-int(target.timestamp())
+            # UnixTime
+            timestamp = int(target.timestamp())
 
             # メンバー
             members = [
@@ -88,19 +94,22 @@ int(target.timestamp())
 
             notice = ""
 
-            6人以上
-           if len(members) >= 6:
-           notice = f"\n\n{time}時生存確認"
+            # 6人以上
+            if len(members) >= 6:
+                notice = f"\n\n{time}時生存確認"
 
             lines.append(
-                f"<t:{timestamp}:t>　{len(members)}人\n{text}"
+                f"<t:{timestamp}:t>　{len(members)}人\n{text}{notice}"
             )
 
         await ctx.send("\n\n".join(lines))
 
     # 離脱
-    @commands.command()
-    async def d(self, ctx, *args):
+    @commands.command(
+        name="drop",
+        aliases=["d"]
+    )
+    async def drop(self, ctx, *args):
 
         times = self.parse_times(args)
 
@@ -110,6 +119,7 @@ int(target.timestamp())
 
             role_name = time
 
+            # ロール取得
             role = discord.utils.get(
                 ctx.guild.roles,
                 name=role_name
@@ -121,13 +131,18 @@ int(target.timestamp())
             # ロール削除
             await ctx.author.remove_roles(role)
 
-            # タイムスタンプ
+            # JST
             jst = datetime.timezone(
-            datetime.timedelta(hours=9)
+                datetime.timedelta(hours=9)
             )
 
+            # 現在時刻
             now = datetime.datetime.now(jst)
 
+            # 入力時間
+            hour = int(time)
+
+            # JSTの指定時間
             target = now.replace(
                 hour=hour,
                 minute=0,
@@ -135,6 +150,7 @@ int(target.timestamp())
                 microsecond=0
             )
 
+            # UnixTime
             timestamp = int(target.timestamp())
 
             # メンバー
@@ -146,8 +162,14 @@ int(target.timestamp())
 
             text = " ".join(members)
 
+            notice = ""
+
+            # 6人以上
+            if len(members) >= 6:
+                notice = f"\n\n{time}時生存確認"
+
             lines.append(
-                f"<t:{timestamp}:t>　{len(members)}人\n{text}"
+                f"<t:{timestamp}:t>　{len(members)}人\n{text}{notice}"
             )
 
         await ctx.send("\n\n".join(lines))
