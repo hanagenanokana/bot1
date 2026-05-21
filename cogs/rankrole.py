@@ -7,7 +7,7 @@ class RankRole(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    # 時間解析
+    # ===== 時間解析 =====
     def parse_times(self, args):
 
         times = set()
@@ -31,7 +31,7 @@ class RankRole(commands.Cog):
 
         return sorted(times, key=int)
 
-    # 全時間表示
+    # ===== 全時間表示 =====
     async def send_all_times(self, ctx):
 
         lines = []
@@ -96,22 +96,22 @@ class RankRole(commands.Cog):
 
         message = "\n\n".join(lines)
 
-        # 更新時刻
+        # 毎回違うメッセージにする
         message += (
-            f"\n\n更新: "
-            f"<t:{int(datetime.datetime.now().timestamp())}:T>"
+            f"\n\n更新ID: "
+            f"{datetime.datetime.now().microsecond}"
         )
 
         await ctx.send(message)
 
-    # 参加
+    # ===== 参加 =====
     @commands.command(
         name="can",
         aliases=["c"]
     )
     async def can(self, ctx, *args):
 
-        # 引数無し
+        # 引数無しなら一覧表示
         if not args:
             await self.send_all_times(ctx)
             return
@@ -141,14 +141,14 @@ class RankRole(commands.Cog):
         # 一覧表示
         await self.send_all_times(ctx)
 
-    # 離脱
+    # ===== 離脱 =====
     @commands.command(
         name="drop",
         aliases=["d"]
     )
     async def drop(self, ctx, *args):
 
-        # 引数無し
+        # 引数無しなら一覧表示
         if not args:
             await self.send_all_times(ctx)
             return
@@ -172,6 +172,41 @@ class RankRole(commands.Cog):
 
         # 一覧表示
         await self.send_all_times(ctx)
+
+    # ===== 現在一覧 =====
+    @commands.command(
+        name="now"
+    )
+    async def now(self, ctx):
+
+        await self.send_all_times(ctx)
+
+    # ===== 全削除 =====
+    @commands.command(
+        name="clear"
+    )
+    async def clear(self, ctx):
+
+        # 数字ロール取得
+        roles = []
+
+        for role in ctx.guild.roles:
+
+            if role.name.isdigit():
+                roles.append(role)
+
+        # 全員から削除
+        for role in roles:
+
+            for member in role.members:
+
+                try:
+                    await member.remove_roles(role)
+
+                except:
+                    pass
+
+        await ctx.send("全ての挙手を削除しました")
 
 async def setup(bot):
     await bot.add_cog(RankRole(bot))
