@@ -116,13 +116,13 @@ class RankRole(commands.Cog):
                 continue
 
             # 横並び
-            text = "　".join(members)
+            text = " ".join(members)
 
             notice = ""
 
             # 6人以上
             if len(members) >= 6:
-                notice = f"\n\n{raw_hour}時生存確認"
+                notice = f"\n\n{role.mention} 生存確認"
 
             lines.append(
                 f"<t:{timestamp}:t>　{len(members)}人\n{text}{notice}"
@@ -130,7 +130,7 @@ class RankRole(commands.Cog):
 
         # 誰もいない
         if not lines:
-            return "誰もいないよ"
+            return "現在挙手なし"
 
         return "\n\n".join(lines)
 
@@ -145,7 +145,7 @@ class RankRole(commands.Cog):
             if (
                 message.author == self.bot.user
                 and (
-                    "誰もいないよ" in message.content
+                    "現在挙手なし" in message.content
                     or "人" in message.content
                 )
             ):
@@ -193,7 +193,8 @@ class RankRole(commands.Cog):
             if role is None:
 
                 role = await ctx.guild.create_role(
-                    name=time
+                    name=time,
+                    mentionable=True
                 )
 
             # 全員付与
