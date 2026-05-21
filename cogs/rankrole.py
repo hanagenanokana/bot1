@@ -7,9 +7,6 @@ class RankRole(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-        # サーバーごとの一覧メッセージ保存
-        self.status_messages = {}
-
     # ===== 時間解析 =====
     def parse_times(self, args):
 
@@ -40,7 +37,7 @@ class RankRole(commands.Cog):
 
         roles = []
 
-        # 数字ロールのみ取得
+        # 数字ロールだけ取得
         for role in guild.roles:
 
             if role.name.isdigit():
@@ -93,7 +90,7 @@ class RankRole(commands.Cog):
                 notice = f"\n\n{hour}時生存確認"
 
             lines.append(
-                f"## <t:{timestamp}:t>　{len(members)}人\n{text}{notice}"
+                f"<t:{timestamp}:t>　{len(members)}人\n{text}{notice}"
             )
 
         # 誰もいない
@@ -107,31 +104,45 @@ class RankRole(commands.Cog):
 
         message_text = self.build_message(ctx.guild)
 
-        old_message = self.status_messages.get(ctx.guild.id)
+        target_message = None
 
-        # 古い一覧削除
-        if old_message:
+        # BOTの最新一覧を探す
+        async for message in ctx.channel.history(limit=20):
+
+            if (
+                message.author == self.bot.user
+                and (
+                    "現在挙手なし" in message.content
+                    or "人" in message.content
+                )
+            ):
+                target_message = message
+                break
+
+        # 編集
+        if target_message:
 
             try:
-                await old_message.delete()
+                await target_message.edit(
+                    content=message_text
+                )
+                return
 
             except:
                 pass
 
-        # 新しい一覧送信
-        new_message = await ctx.send(message_text)
-
-        # 保存
-        self.status_messages[ctx.guild.id] = new_message
+        # 無ければ新規送信
+        await ctx.send(message_text)
 
     # ===== 参加 =====
     @commands.command(
         name="can",
-        aliases=["c"]
+        aliases=["c"],
+        case_insensitive=True
     )
     async def can(self, ctx, *args):
 
-        # 引数無しなら一覧表示
+        # 引数無し
         if not args:
             await self.update_message(ctx)
             return
@@ -160,11 +171,12 @@ class RankRole(commands.Cog):
     # ===== 離脱 =====
     @commands.command(
         name="drop",
-        aliases=["d"]
+        aliases=["d"],
+        case_insensitive=True
     )
     async def drop(self, ctx, *args):
 
-        # 引数無しなら一覧表示
+        # 引数無し
         if not args:
             await self.update_message(ctx)
             return
@@ -183,14 +195,14 @@ class RankRole(commands.Cog):
                 # ロール削除
                 await ctx.author.remove_roles(role)
 
-                # 人間だけ取得
-                human_members = [
+                # BOT除外
+                members = [
                     m for m in role.members
                     if not m.bot
                 ]
 
                 # 0人ならロール削除
-                if len(human_members) == 0:
+                if len(members) == 0:
 
                     try:
                         await role.delete()
@@ -202,7 +214,8 @@ class RankRole(commands.Cog):
 
     # ===== 現在一覧 =====
     @commands.command(
-        name="now"
+        name="now",
+        case_insensitive=True
     )
     async def now(self, ctx):
 
@@ -210,12 +223,14 @@ class RankRole(commands.Cog):
 
     # ===== 全削除 =====
     @commands.command(
-        name="clear"
+        name="clear",
+        case_insensitive=True
     )
     async def clear(self, ctx):
 
         roles = []
 
+        # 数字ロール取得
         for role in ctx.guild.roles:
 
             if role.name.isdigit():
@@ -223,7 +238,7 @@ class RankRole(commands.Cog):
 
         for role in roles:
 
-            # 全員から削除
+            # 全員からロール削除
             for member in role.members:
 
                 try:
