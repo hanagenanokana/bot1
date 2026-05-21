@@ -115,7 +115,7 @@ class RankRole(commands.Cog):
             if len(members) == 0:
                 continue
 
-            text = "\n".join(members)
+            text = " ".join(members)
 
             notice = ""
 
