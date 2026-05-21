@@ -36,7 +36,7 @@ class RankRole(commands.Cog):
 
         lines = []
 
-        # 数字ロールだけ取得
+        # 数字ロールのみ取得
         roles = []
 
         for role in ctx.guild.roles:
@@ -90,11 +90,19 @@ class RankRole(commands.Cog):
                 f"<t:{timestamp}:t>　{len(members)}人\n{text}{notice}"
             )
 
-        # ロール無い場合
+        # ロール無し
         if not lines:
             lines.append("現在挙手なし")
 
-        await ctx.send("\n\n".join(lines))
+        message = "\n\n".join(lines)
+
+        # 更新時刻
+        message += (
+            f"\n\n更新: "
+            f"<t:{int(datetime.datetime.now().timestamp())}:T>"
+        )
+
+        await ctx.send(message)
 
     # 参加
     @commands.command(
@@ -102,6 +110,11 @@ class RankRole(commands.Cog):
         aliases=["c"]
     )
     async def can(self, ctx, *args):
+
+        # 引数無し
+        if not args:
+            await self.send_all_times(ctx)
+            return
 
         times = self.parse_times(args)
 
@@ -125,7 +138,7 @@ class RankRole(commands.Cog):
             # ロール付与
             await ctx.author.add_roles(role)
 
-        # 全時間表示
+        # 一覧表示
         await self.send_all_times(ctx)
 
     # 離脱
@@ -134,6 +147,11 @@ class RankRole(commands.Cog):
         aliases=["d"]
     )
     async def drop(self, ctx, *args):
+
+        # 引数無し
+        if not args:
+            await self.send_all_times(ctx)
+            return
 
         times = self.parse_times(args)
 
@@ -152,7 +170,7 @@ class RankRole(commands.Cog):
             # ロール削除
             await ctx.author.remove_roles(role)
 
-        # 全時間表示
+        # 一覧表示
         await self.send_all_times(ctx)
 
 async def setup(bot):
