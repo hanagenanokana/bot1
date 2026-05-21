@@ -14,19 +14,43 @@ class RankRole(commands.Cog):
 
         for arg in args:
 
+            arg = arg.strip()
+
             # 20-22
             if "-" in arg:
 
-                start, end = arg.split("-")
+                try:
 
-                start = int(start)
-                end = int(end)
+                    start, end = arg.split("-", 1)
 
-                for t in range(start, end + 1):
-                    times.add(str(t))
+                    start = int(start)
+                    end = int(end)
 
+                    # 逆対応
+                    if start > end:
+                        start, end = end, start
+
+                    for t in range(start, end + 1):
+
+                        # 0〜48対応
+                        if 0 <= t <= 48:
+                            times.add(str(t))
+
+                except:
+                    continue
+
+            # 単体
             else:
-                times.add(arg)
+
+                try:
+
+                    t = int(arg)
+
+                    if 0 <= t <= 48:
+                        times.add(str(t))
+
+                except:
+                    continue
 
         return sorted(times, key=int)
 
@@ -56,17 +80,27 @@ class RankRole(commands.Cog):
         for role in roles:
 
             try:
-                hour = int(role.name)
+
+                raw_hour = int(role.name)
 
             except:
                 continue
 
+            # 24超え対応
+            display_hour = raw_hour % 24
+
+            # 翌日判定
+            day_offset = raw_hour // 24
+
             target = now.replace(
-                hour=hour,
+                hour=display_hour,
                 minute=0,
                 second=0,
                 microsecond=0
             )
+
+            # 翌日加算
+            target += datetime.timedelta(days=day_offset)
 
             timestamp = int(target.timestamp())
 
@@ -87,7 +121,7 @@ class RankRole(commands.Cog):
 
             # 6人以上
             if len(members) >= 6:
-                notice = f"\n\n{hour}時生存確認"
+                notice = f"\n\n{raw_hour}時生存確認"
 
             lines.append(
                 f"<t:{timestamp}:t>　{len(members)}人\n{text}{notice}"
@@ -131,7 +165,7 @@ class RankRole(commands.Cog):
     )
     async def can(self, ctx, *args):
 
-        # 引数無しなら一覧表示
+        # 引数無し
         if not args:
             await self.update_message(ctx)
             return
@@ -164,7 +198,7 @@ class RankRole(commands.Cog):
     )
     async def drop(self, ctx, *args):
 
-        # 引数無しなら一覧表示
+        # 引数無し
         if not args:
             await self.update_message(ctx)
             return
@@ -183,7 +217,7 @@ class RankRole(commands.Cog):
                 # ロール削除
                 await ctx.author.remove_roles(role)
 
-                # 人間だけ取得
+                # BOT除外
                 members = [
                     m for m in role.members
                     if not m.bot
