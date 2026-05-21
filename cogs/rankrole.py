@@ -98,11 +98,59 @@ class RankRole(commands.Cog):
             if len(members) >= 6:
                 notice = f"\n\n{time}時生存確認"
 
-            lines.append(
-                f"<t:{timestamp}:t>　{len(members)}人\n{text}{notice}"
-            )
+            # ===== 全時間表示 =====
 
-        await ctx.send("\n\n".join(lines))
+lines = []
+
+# 数字ロールだけ取得
+roles = []
+
+for role in ctx.guild.roles:
+
+    if role.name.isdigit():
+        roles.append(role)
+
+# 時間順
+roles.sort(key=lambda r: int(r.name))
+
+# JST
+jst = datetime.timezone(
+    datetime.timedelta(hours=9)
+)
+
+now = datetime.datetime.now(jst)
+
+for role in roles:
+
+    hour = int(role.name)
+
+    target = now.replace(
+        hour=hour,
+        minute=0,
+        second=0,
+        microsecond=0
+    )
+
+    timestamp = int(target.timestamp())
+
+    members = [
+        m.display_name
+        for m in role.members
+        if not m.bot
+    ]
+
+    text = " ".join(members)
+
+    notice = ""
+
+    if len(members) >= 6:
+        notice = f"\n{hour}時生存確認"
+
+    lines.append(
+        f"<t:{timestamp}:t>　{len(members)}人\n{text}{notice}"
+    )
+
+await ctx.send("\n\n".join(lines))
 
     # 離脱
     @commands.command(
@@ -168,11 +216,59 @@ class RankRole(commands.Cog):
             if len(members) >= 6:
                 notice = f"\n\n{time}時生存確認"
 
-            lines.append(
-                f"<t:{timestamp}:t>　{len(members)}人\n{text}{notice}"
-            )
+            # ===== 全時間表示 =====
 
-        await ctx.send("\n\n".join(lines))
+lines = []
+
+# 数字ロールだけ取得
+roles = []
+
+for role in ctx.guild.roles:
+
+    if role.name.isdigit():
+        roles.append(role)
+
+# 時間順
+roles.sort(key=lambda r: int(r.name))
+
+# JST
+jst = datetime.timezone(
+    datetime.timedelta(hours=9)
+)
+
+now = datetime.datetime.now(jst)
+
+for role in roles:
+
+    hour = int(role.name)
+
+    target = now.replace(
+        hour=hour,
+        minute=0,
+        second=0,
+        microsecond=0
+    )
+
+    timestamp = int(target.timestamp())
+
+    members = [
+        m.display_name
+        for m in role.members
+        if not m.bot
+    ]
+
+    text = " ".join(members)
+
+    notice = ""
+
+    if len(members) >= 6:
+        notice = f"\n{hour}時生存確認"
+
+    lines.append(
+        f"<t:{timestamp}:t>　{len(members)}人\n{text}{notice}"
+    )
+
+await ctx.send("\n\n".join(lines))
 
 async def setup(bot):
     await bot.add_cog(RankRole(bot))
