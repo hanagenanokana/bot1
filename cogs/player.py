@@ -59,7 +59,7 @@ class Player(commands.Cog):
         )
 
         embed.add_field(
-            name="平均",
+            name="Average",
             value=f"**{avg}**",
             inline=False
         )
