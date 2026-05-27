@@ -16,7 +16,7 @@ class RankRole(commands.Cog):
 
             arg = arg.strip()
 
-            # 20-25
+            # 範囲指定
             if "-" in arg:
 
                 try:
@@ -78,7 +78,6 @@ class RankRole(commands.Cog):
         for role in roles:
 
             try:
-
                 raw_hour = int(role.name)
 
             except:
@@ -108,7 +107,7 @@ class RankRole(commands.Cog):
                 if not m.bot
             ]
 
-            # 0人は表示しない
+            # 0人は非表示
             if len(members) == 0:
                 continue
 
@@ -130,10 +129,6 @@ class RankRole(commands.Cog):
                 f"<t:{timestamp}:t>　{len(members)}人\n{text}{notice}"
             )
 
-        # 誰もいない
-        if not lines:
-            return "いない"
-
         return "\n\n".join(lines)
 
     # ===== 一覧更新 =====
@@ -144,15 +139,17 @@ class RankRole(commands.Cog):
         # 古いBOTメッセージ削除
         async for message in ctx.channel.history(limit=30):
 
-            if (
-                message.author == self.bot.user
-            ):
+            if message.author == self.bot.user:
 
                 try:
                     await message.delete()
 
                 except:
                     pass
+
+        # 空なら送らない
+        if message_text == "":
+            return
 
         # Embed
         embed = discord.Embed(
@@ -175,11 +172,11 @@ class RankRole(commands.Cog):
         *args
     ):
 
-        # メンション無し
+        # メンション無しなら自分
         if not members:
             members = [ctx.author]
 
-        # 時間無し
+        # 引数無し
         if not args:
             await self.update_message(ctx)
             return
@@ -219,11 +216,11 @@ class RankRole(commands.Cog):
         *args
     ):
 
-        # メンション無し
+        # メンション無しなら自分
         if not members:
             members = [ctx.author]
 
-        # 時間無し
+        # 引数無し
         if not args:
             await self.update_message(ctx)
             return
@@ -276,6 +273,7 @@ class RankRole(commands.Cog):
 
         roles = []
 
+        # 数字ロール取得
         for role in ctx.guild.roles:
 
             if role.name.isdigit():
@@ -299,7 +297,18 @@ class RankRole(commands.Cog):
             except:
                 pass
 
-        await self.update_message(ctx)
+        # 古いメッセージ削除
+        async for message in ctx.channel.history(limit=30):
+
+            if message.author == self.bot.user:
+
+                try:
+                    await message.delete()
+
+                except:
+                    pass
+
+        await ctx.send("いない")
 
 async def setup(bot):
     await bot.add_cog(RankRole(bot))
