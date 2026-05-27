@@ -25,29 +25,38 @@ def run_web():
 
     server.serve_forever()
 
-threading.Thread(target=run_web).start()
+threading.Thread(
+    target=run_web,
+    daemon=True
+).start()
 
-# ===== Discord Bot =====
+# ===== Discord Intents =====
 intents = discord.Intents.default()
 
 # メンバー取得
 intents.members = True
 
-# !c 20 など
+# !c 20 用
 intents.message_content = True
 
+# ===== Bot =====
 bot = commands.Bot(
     command_prefix="!",
     intents=intents,
     case_insensitive=True
 )
 
-# ===== Cog / Service Load =====
-async def load():
+# ===== Load Extensions =====
+async def load_extensions():
 
-    # 募集
+    # RankRole
     await bot.load_extension(
         "cogs.rankrole"
+    )
+
+    # Player
+    await bot.load_extension(
+        "cogs.player"
     )
 
     # Lounge API
@@ -55,22 +64,17 @@ async def load():
         "services.lounge_api"
     )
 
-    # player
-    await bot.load_extension(
-        "cogs.player"
-    )
-
-    # dice
+    # Dice
     await bot.load_extension(
         "cogs.dice"
     )
 
-    # stats
+    # Stats
     await bot.load_extension(
         "cogs.stats"
     )
 
-    # uso
+    # Uso
     await bot.load_extension(
         "cogs.uso"
     )
@@ -85,6 +89,7 @@ async def on_ready():
 
     try:
 
+        # スラッシュコマンド同期
         synced = await bot.tree.sync()
 
         print(
@@ -100,10 +105,11 @@ async def main():
 
     async with bot:
 
-        await load()
+        # Cog読込
+        await load_extensions()
 
+        # 起動
         await bot.start(TOKEN)
 
 # ===== Run =====
-asyncio.run(main())
 asyncio.run(main())
