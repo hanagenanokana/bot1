@@ -19,7 +19,8 @@ class Player(commands.Cog):
         role: discord.Role,
         fetch_func,
         title_suffix: str,
-        mode: str
+        mode: str,
+        season: int
     ):
 
         await interaction.response.defer()
@@ -41,7 +42,8 @@ class Player(commands.Cog):
             *[
                 fetch_func(
                     m.id,
-                    mode
+                    mode,
+                    season
                 )
                 for m in members
             ]
@@ -76,10 +78,12 @@ class Player(commands.Cog):
         embed = discord.Embed(
             title=(
                 f"{role.name} の "
-                f"{mode}P {title_suffix}"
+                f"S{season} "
+                f"{mode}P "
+                f"{title_suffix}"
             ),
             description="\n".join(lines[:20]),
-            color=discord.Color.green()
+            color=0x000000
         )
 
         embed.add_field(
@@ -106,16 +110,17 @@ class Player(commands.Cog):
     )
     @app_commands.describe(
         role="対象ロール",
-        mode="12Pか24Pを選択"
+        season="シーズン",
+        game_mode="ゲームモード"
     )
     @app_commands.choices(
-        mode=[
+        game_mode=[
             app_commands.Choice(
-                name="24P",
+                name="24p",
                 value="24"
             ),
             app_commands.Choice(
-                name="12P",
+                name="12p",
                 value="12"
             )
         ]
@@ -124,15 +129,24 @@ class Player(commands.Cog):
         self,
         interaction: discord.Interaction,
         role: discord.Role,
-        mode: app_commands.Choice[str]
+        season: int = 14,
+        game_mode: app_commands.Choice[str] = None
     ):
+
+        # デフォルト24P
+        if game_mode is None:
+            mode = "24"
+
+        else:
+            mode = game_mode.value
 
         await self._average_mmr_command(
             interaction,
             role,
             fetch_mmr,
             "MMR",
-            mode.value
+            mode,
+            season
         )
 
     # ===== /team_peak =====
@@ -142,16 +156,17 @@ class Player(commands.Cog):
     )
     @app_commands.describe(
         role="対象ロール",
-        mode="12Pか24Pを選択"
+        season="シーズン",
+        game_mode="ゲームモード"
     )
     @app_commands.choices(
-        mode=[
+        game_mode=[
             app_commands.Choice(
-                name="24P",
+                name="24p",
                 value="24"
             ),
             app_commands.Choice(
-                name="12P",
+                name="12p",
                 value="12"
             )
         ]
@@ -160,15 +175,24 @@ class Player(commands.Cog):
         self,
         interaction: discord.Interaction,
         role: discord.Role,
-        mode: app_commands.Choice[str]
+        season: int = 14,
+        game_mode: app_commands.Choice[str] = None
     ):
+
+        # デフォルト24P
+        if game_mode is None:
+            mode = "24"
+
+        else:
+            mode = game_mode.value
 
         await self._average_mmr_command(
             interaction,
             role,
             fetch_peak,
-            "Peak MMR",
-            mode.value
+            "Peak",
+            mode,
+            season
         )
 
 async def setup(bot):
