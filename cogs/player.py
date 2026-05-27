@@ -7,7 +7,7 @@ import statistics
 from services.lounge_api import fetch_mmr
 from services.lounge_api import fetch_peak
 
-class Player(commands.Cog):
+class Player(commands.groupCog):
 
     def __init__(self, bot):
         self.bot = bot
