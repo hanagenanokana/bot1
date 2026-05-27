@@ -26,11 +26,13 @@ class RankRole(commands.Cog):
                     start = int(start)
                     end = int(end)
 
+                    # 逆対応
                     if start > end:
                         start, end = end, start
 
                     for t in range(start, end + 1):
 
+                        # 0〜48対応
                         if 0 <= t <= 48:
                             times.add(str(t))
 
@@ -102,7 +104,7 @@ class RankRole(commands.Cog):
 
             # BOT除外
             members = [
-                m.display_name
+                m.mention
                 for m in role.members
                 if not m.bot
             ]
@@ -129,7 +131,7 @@ class RankRole(commands.Cog):
                 f"<t:{timestamp}:t>　{len(members)}人\n{text}{notice}"
             )
 
-        return "\n\n".join(lines)
+        return "\n".join(lines)
 
     # ===== 一覧更新 =====
     async def update_message(self, ctx):
