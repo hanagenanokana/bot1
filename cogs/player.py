@@ -38,6 +38,7 @@ class Player(commands.Cog):
 
             return
 
+        # MMR取得
         results = await asyncio.gather(
             *[
                 fetch_func(
@@ -75,6 +76,7 @@ class Player(commands.Cog):
 
         avg = int(statistics.mean(values))
 
+        # ===== Embed =====
         embed = discord.Embed(
             title=(
                 f"{role.name} の "
@@ -106,7 +108,7 @@ class Player(commands.Cog):
     # ===== /team_mmr =====
     @app_commands.command(
         name="team_mmr",
-        description="MMR一覧"
+        description="チーム平均MMR"
     )
     @app_commands.describe(
         role="対象ロール",
@@ -129,30 +131,23 @@ class Player(commands.Cog):
         self,
         interaction: discord.Interaction,
         role: discord.Role,
-        season: int = 14,
-        game_mode: app_commands.Choice[str] = None
+        season: int,
+        game_mode: app_commands.Choice[str]
     ):
-
-        # デフォルト24P
-        if game_mode is None:
-            mode = "24"
-
-        else:
-            mode = game_mode.value
 
         await self._average_mmr_command(
             interaction,
             role,
             fetch_mmr,
             "MMR",
-            mode,
+            game_mode.value,
             season
         )
 
     # ===== /team_peak =====
     @app_commands.command(
         name="team_peak",
-        description="Peak一覧"
+        description="チームPeak一覧"
     )
     @app_commands.describe(
         role="対象ロール",
@@ -175,23 +170,16 @@ class Player(commands.Cog):
         self,
         interaction: discord.Interaction,
         role: discord.Role,
-        season: int = 14,
-        game_mode: app_commands.Choice[str] = None
+        season: int,
+        game_mode: app_commands.Choice[str]
     ):
-
-        # デフォルト24P
-        if game_mode is None:
-            mode = "24"
-
-        else:
-            mode = game_mode.value
 
         await self._average_mmr_command(
             interaction,
             role,
             fetch_peak,
             "Peak",
-            mode,
+            game_mode.value,
             season
         )
 
