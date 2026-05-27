@@ -16,7 +16,7 @@ class RankRole(commands.Cog):
 
             arg = arg.strip()
 
-            # 範囲指定
+            # 20-25
             if "-" in arg:
 
                 try:
@@ -26,13 +26,11 @@ class RankRole(commands.Cog):
                     start = int(start)
                     end = int(end)
 
-                    # 逆対応
                     if start > end:
                         start, end = end, start
 
                     for t in range(start, end + 1):
 
-                        # 0〜48対応
                         if 0 <= t <= 48:
                             times.add(str(t))
 
@@ -54,14 +52,14 @@ class RankRole(commands.Cog):
 
         return sorted(times, key=int)
 
-    # ===== 一覧生成 =====
+    # ===== メッセージ生成 =====
     def build_message(self, guild):
 
         lines = []
 
         roles = []
 
-        # 数字ロールのみ取得
+        # 数字ロール取得
         for role in guild.roles:
 
             if role.name.isdigit():
@@ -89,7 +87,7 @@ class RankRole(commands.Cog):
             # 24超え対応
             display_hour = raw_hour % 24
 
-            # 翌日判定
+            # 翌日補正
             day_offset = raw_hour // 24
 
             target = now.replace(
@@ -99,7 +97,6 @@ class RankRole(commands.Cog):
                 microsecond=0
             )
 
-            # 翌日加算
             target += datetime.timedelta(days=day_offset)
 
             timestamp = int(target.timestamp())
@@ -111,7 +108,7 @@ class RankRole(commands.Cog):
                 if not m.bot
             ]
 
-            # 0人なら表示しない
+            # 0人は表示しない
             if len(members) == 0:
                 continue
 
@@ -122,11 +119,12 @@ class RankRole(commands.Cog):
 
             # 6人以上
             if len(members) >= 6:
+
                 notice = (
-    f"\n\n"
-    f"{role.mention}時 "
-    f"{len(members)}人集まったよ"
-)
+                    f"\n\n"
+                    f"{role.mention}時 "
+                    f"{len(members)}人集まったよ"
+                )
 
             lines.append(
                 f"<t:{timestamp}:t>　{len(members)}人\n{text}{notice}"
@@ -134,7 +132,7 @@ class RankRole(commands.Cog):
 
         # 誰もいない
         if not lines:
-            return "誰もいないよ"
+            return "いない"
 
         return "\n\n".join(lines)
 
@@ -143,15 +141,11 @@ class RankRole(commands.Cog):
 
         message_text = self.build_message(ctx.guild)
 
-        # BOTの古い一覧を削除
-        async for message in ctx.channel.history(limit=20):
+        # 古いBOTメッセージ削除
+        async for message in ctx.channel.history(limit=30):
 
             if (
                 message.author == self.bot.user
-                and (
-                    "誰もいないよ" in message.content
-                    or "人" in message.content
-                )
             ):
 
                 try:
@@ -160,8 +154,14 @@ class RankRole(commands.Cog):
                 except:
                     pass
 
-        # 新しい一覧送信
-        await ctx.send(message_text)
+        # Embed
+        embed = discord.Embed(
+            title="6v6 War List",
+            description=message_text,
+            color=0x000000
+        )
+
+        await ctx.send(embed=embed)
 
     # ===== 参加 =====
     @commands.command(
@@ -175,11 +175,11 @@ class RankRole(commands.Cog):
         *args
     ):
 
-        # メンション無しなら自分
+        # メンション無し
         if not members:
             members = [ctx.author]
 
-        # 引数無し
+        # 時間無し
         if not args:
             await self.update_message(ctx)
             return
@@ -201,7 +201,7 @@ class RankRole(commands.Cog):
                     mentionable=True
                 )
 
-            # 全員付与
+            # ロール付与
             for member in members:
                 await member.add_roles(role)
 
@@ -219,11 +219,11 @@ class RankRole(commands.Cog):
         *args
     ):
 
-        # メンション無しなら自分
+        # メンション無し
         if not members:
             members = [ctx.author]
 
-        # 引数無し
+        # 時間無し
         if not args:
             await self.update_message(ctx)
             return
@@ -239,7 +239,7 @@ class RankRole(commands.Cog):
 
             if role:
 
-                # 全員削除
+                # ロール削除
                 for member in members:
                     await member.remove_roles(role)
 
@@ -249,7 +249,7 @@ class RankRole(commands.Cog):
                     if not m.bot
                 ]
 
-                # 0人ならロール削除
+                # 0人なら削除
                 if len(remain_members) == 0:
 
                     try:
@@ -276,7 +276,6 @@ class RankRole(commands.Cog):
 
         roles = []
 
-        # 数字ロール取得
         for role in ctx.guild.roles:
 
             if role.name.isdigit():
