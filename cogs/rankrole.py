@@ -116,19 +116,8 @@ class RankRole(commands.Cog):
             # 横並び
             text = " ".join(members)
 
-            notice = ""
-
-            # 6人以上
-            if len(members) >= 6:
-
-                notice = (
-                    f"\n\n"
-                    f"{role.mention}時 "
-                    f"{len(members)}人集まったよ"
-                )
-
             lines.append(
-                f"<t:{timestamp}:t>　{len(members)}人\n{text}{notice}"
+                f"<t:{timestamp}:t>　{len(members)}人\n{text}"
             )
 
         return "\n".join(lines)
@@ -161,6 +150,24 @@ class RankRole(commands.Cog):
         )
 
         await ctx.send(embed=embed)
+
+        # ===== 6人以上通知 =====
+        for role in ctx.guild.roles:
+
+            if not role.name.isdigit():
+                continue
+
+            members = [
+                m for m in role.members
+                if not m.bot
+            ]
+
+            if len(members) >= 6:
+
+                await ctx.send(
+                    f"{role.mention}時 "
+                    f"{len(members)}人集まったよ"
+                )
 
     # ===== 参加 =====
     @commands.command(
@@ -299,7 +306,7 @@ class RankRole(commands.Cog):
             except:
                 pass
 
-        # 古いメッセージ削除
+        # 古いBOTメッセージ削除
         async for message in ctx.channel.history(limit=30):
 
             if message.author == self.bot.user:
