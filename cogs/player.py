@@ -4,21 +4,23 @@ import discord
 import asyncio
 import statistics
 
-from services.lounge_api import fetch_mmr
-from services.lounge_api import fetch_peak
+from services.lounge_api import (
+    fetch_mmr,
+    fetch_peak
+)
 
-class Player(commands.commandsCog):
+class Player(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
 
-    # ===== 共通処理 =====
-    async def _average_mmr_command(
+    # ===== 共通 =====
+    async def average_command(
         self,
         interaction: discord.Interaction,
         role: discord.Role,
         fetch_func,
-        title_suffix: str,
+        title: str,
         mode: str,
         season: int
     ):
@@ -33,12 +35,11 @@ class Player(commands.commandsCog):
         if not members:
 
             await interaction.followup.send(
-                "そのロールにメンバーがいません。"
+                "メンバーがいません"
             )
 
             return
 
-        # MMR取得
         results = await asyncio.gather(
             *[
                 fetch_func(
@@ -52,53 +53,48 @@ class Player(commands.commandsCog):
 
         values = []
         lines = []
-        skipped = 0
 
-        for member, value in zip(members, results):
+        for member, value in zip(
+            members,
+            results
+        ):
 
             if value is None:
-                skipped += 1
                 continue
 
             values.append(value)
 
             lines.append(
-                f"{member.display_name}: **{value}**"
+                f"{member.display_name}: {value}"
             )
 
         if not values:
 
             await interaction.followup.send(
-                "取得できるデータがありません。"
+                "データ取得失敗"
             )
 
             return
 
-        avg = int(statistics.mean(values))
+        avg = int(
+            statistics.mean(values)
+        )
 
-        # ===== Embed =====
         embed = discord.Embed(
             title=(
-                f"{role.name} の "
+                f"{role.name} "
                 f"S{season} "
                 f"{mode}P "
-                f"{title_suffix}"
+                f"{title}"
             ),
-            description="\n".join(lines[:20]),
+            description="\n".join(lines),
             color=0x000000
         )
 
         embed.add_field(
             name="Average",
-            value=f"**{avg}**",
+            value=str(avg),
             inline=False
-        )
-
-        embed.set_footer(
-            text=(
-                f"{len(values)}人分 | "
-                f"placement {skipped}人"
-            )
         )
 
         await interaction.followup.send(
@@ -135,7 +131,7 @@ class Player(commands.commandsCog):
         game_mode: app_commands.Choice[str]
     ):
 
-        await self._average_mmr_command(
+        await self.average_command(
             interaction,
             role,
             fetch_mmr,
@@ -147,7 +143,7 @@ class Player(commands.commandsCog):
     # ===== /team_peak =====
     @app_commands.command(
         name="team_peak",
-        description="チームPeak一覧"
+        description="チームPeak"
     )
     @app_commands.describe(
         role="対象ロール",
@@ -174,7 +170,7 @@ class Player(commands.commandsCog):
         game_mode: app_commands.Choice[str]
     ):
 
-        await self._average_mmr_command(
+        await self.average_command(
             interaction,
             role,
             fetch_peak,
@@ -184,4 +180,7 @@ class Player(commands.commandsCog):
         )
 
 async def setup(bot):
-    await bot.add_cog(Player(bot))
+
+    await bot.add_cog(
+        Player(bot)
+    )
