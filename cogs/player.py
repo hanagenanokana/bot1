@@ -44,8 +44,7 @@ class Player(commands.Cog):
             *[
                 fetch_func(
                     m.id,
-                    mode,
-                    season
+                    mode
                 )
                 for m in members
             ]
@@ -83,7 +82,6 @@ class Player(commands.Cog):
         embed = discord.Embed(
             title=(
                 f"{role.name} "
-                f"S{season} "
                 f"{mode}P "
                 f"{title}"
             ),
@@ -108,7 +106,6 @@ class Player(commands.Cog):
     )
     @app_commands.describe(
         role="対象ロール",
-        season="シーズン",
         game_mode="ゲームモード"
     )
     @app_commands.choices(
@@ -136,8 +133,7 @@ class Player(commands.Cog):
             role,
             fetch_mmr,
             "MMR",
-            game_mode.value,
-            season
+            game_mode.value
         )
 
     # ===== /team_peak =====
@@ -147,7 +143,6 @@ class Player(commands.Cog):
     )
     @app_commands.describe(
         role="対象ロール",
-        season="シーズン",
         game_mode="ゲームモード"
     )
     @app_commands.choices(
@@ -166,7 +161,6 @@ class Player(commands.Cog):
         self,
         interaction: discord.Interaction,
         role: discord.Role,
-        season: int,
         game_mode: app_commands.Choice[str]
     ):
 
@@ -175,8 +169,7 @@ class Player(commands.Cog):
             role,
             fetch_peak,
             "Peak",
-            game_mode.value,
-            season
+            game_mode.value
         )
 
 async def setup(bot):
