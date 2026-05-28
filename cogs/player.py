@@ -16,91 +16,80 @@ class Player(commands.Cog):
 
     # ===== 共通 =====
     async def average_command(
-        self,
-        interaction: discord.Interaction,
-        role: discord.Role,
-        fetch_func,
-        title: str,
-        mode: str
-    ):
+    self,
+    interaction: discord.Interaction,
+    role: discord.Role,
+    fetch_func,
+    title: str,
+    mode: str
+):
 
-        await interaction.response.defer()
+    await interaction.response.defer()
 
-        members = [
-            m for m in role.members
-            if not m.bot
-        ]
+    members = [
+        m for m in role.members
+        if not m.bot
+    ]
 
-        if not members:
-
-            await interaction.followup.send(
-                "メンバーがいません"
-            )
-
-            return
-
-       tasks = []
-
-for m in members:
-    print("fetch start", m.display_name, m.id)
-
-    tasks.append(
-        fetch_func(
-            m.id,
-            mode
-        )
-    )
-
-results = await asyncio.gather(*tasks)
-
-        values = []
-        lines = []
-
-        for member, value in zip(
-            members,
-            results
-        ):
-
-            if value is None:
-                continue
-
-            values.append(value)
-
-            lines.append(
-                f"{member.display_name}: {value}"
-            )
-
-        if not values:
-
-            await interaction.followup.send(
-                "データ取得失敗"
-            )
-
-            return
-
-        avg = int(
-            statistics.mean(values)
-        )
-
-        embed = discord.Embed(
-            title=(
-                f"{role.name} "
-                f"{mode}P "
-                f"{title}"
-            ),
-            description="\n".join(lines),
-            color=0x000000
-        )
-
-        embed.add_field(
-            name="Average",
-            value=str(avg),
-            inline=False
-        )
+    if not members:
 
         await interaction.followup.send(
-            embed=embed
+            "メンバーがいません"
         )
+
+        return
+
+    tasks = []
+
+    for m in members:
+        print("fetch start", m.display_name, m.id)
+
+        tasks.append(
+            fetch_func(
+                m.id,
+                mode
+            )
+        )
+
+    results = await asyncio.gather(*tasks)
+
+    values = []
+    lines = []
+
+    for member, value in zip(members, results):
+
+        if value is None:
+            continue
+
+        values.append(value)
+
+        lines.append(
+            f"{member.display_name}: {value}"
+        )
+
+    if not values:
+
+        await interaction.followup.send(
+            "データ取得失敗"
+        )
+
+        return
+
+    avg = int(statistics.mean(values))
+
+    embed = discord.Embed(
+        title=f"{role.name} {mode}P {title}",
+        description="\n".join(lines),
+        color=0x000000
+    )
+
+    embed.add_field(
+        name="Average",
+        value=str(avg),
+        inline=False
+    )
+
+    await interaction.followup.send(embed=embed)
 
     # ===== /team_mmr =====
     @app_commands.command(
