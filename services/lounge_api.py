@@ -2,17 +2,101 @@ from discord.ext import commands
 import discord
 import aiohttp
 
+# ===== MMR取得 =====
+async def fetch_mmr(
+    discord_id,
+    mode,
+    season
+):
+
+    url = (
+        "https://www.mk8dx-lounge.com/api/player?"
+        f"discordId={discord_id}"
+    )
+
+    async with aiohttp.ClientSession() as session:
+
+        async with session.get(url) as response:
+
+            if response.status != 200:
+                return None
+
+            data = await response.json()
+
+    if not data:
+        return None
+
+    player = data[0]
+
+    # 12P / 24P
+    if mode == "12":
+
+        return player.get(
+            "mmr_12p"
+        )
+
+    else:
+
+        return player.get(
+            "mmr_24p"
+        )
+
+# ===== Peak取得 =====
+async def fetch_peak(
+    discord_id,
+    mode,
+    season
+):
+
+    url = (
+        "https://www.mk8dx-lounge.com/api/player?"
+        f"discordId={discord_id}"
+    )
+
+    async with aiohttp.ClientSession() as session:
+
+        async with session.get(url) as response:
+
+            if response.status != 200:
+                return None
+
+            data = await response.json()
+
+    if not data:
+        return None
+
+    player = data[0]
+
+    # 12P / 24P
+    if mode == "12":
+
+        return player.get(
+            "maxMmr_12p"
+        )
+
+    else:
+
+        return player.get(
+            "maxMmr_24p"
+        )
+
+# ===== Cog =====
 class LoungeAPI(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
 
-    # ===== プレイヤー検索 =====
+    # ===== /mmr =====
     @commands.command(
         name="mmr",
         aliases=["lounge"]
     )
-    async def mmr(self, ctx, *, player_name):
+    async def mmr(
+        self,
+        ctx,
+        *,
+        player_name
+    ):
 
         url = (
             "https://www.mk8dx-lounge.com/api/player?"
@@ -23,42 +107,61 @@ class LoungeAPI(commands.Cog):
 
             async with session.get(url) as response:
 
-                # API失敗
                 if response.status != 200:
 
-                    await ctx.send("プレイヤーが見つかりません")
+                    await ctx.send(
+                        "プレイヤーが見つかりません"
+                    )
+
                     return
 
                 data = await response.json()
 
-        # データ無し
         if not data:
 
-            await ctx.send("プレイヤーが見つかりません")
+            await ctx.send(
+                "プレイヤーが見つかりません"
+            )
+
             return
 
-        # ===== プレイヤーデータ =====
         player = data[0]
 
-        name = player.get("name", "Unknown")
+        name = player.get(
+            "name",
+            "Unknown"
+        )
 
-        # MMR
-        mmr24 = player.get("mmr_24p", "なし")
-        mmr12 = player.get("mmr_12p", "なし")
+        mmr24 = player.get(
+            "mmr_24p",
+            "なし"
+        )
 
-        # Discord名
-        discord_name = player.get("discordName", "なし")
+        mmr12 = player.get(
+            "mmr_12p",
+            "なし"
+        )
 
-        # FC
-        fc = player.get("fc", "なし")
+        peak24 = player.get(
+            "maxMmr_24p",
+            "なし"
+        )
 
-        # 国
-        country = player.get("countryCode", "なし")
+        peak12 = player.get(
+            "maxMmr_12p",
+            "なし"
+        )
 
-        # ランク
-        rank = player.get("rank", "なし")
+        fc = player.get(
+            "fc",
+            "なし"
+        )
 
-        # ===== Embed =====
+        rank = player.get(
+            "rank",
+            "なし"
+        )
+
         embed = discord.Embed(
             title=f"{name} の Lounge情報",
             color=0x000000
@@ -77,6 +180,18 @@ class LoungeAPI(commands.Cog):
         )
 
         embed.add_field(
+            name="24P Peak",
+            value=peak24,
+            inline=True
+        )
+
+        embed.add_field(
+            name="12P Peak",
+            value=peak12,
+            inline=True
+        )
+
+        embed.add_field(
             name="Rank",
             value=rank,
             inline=True
@@ -88,23 +203,11 @@ class LoungeAPI(commands.Cog):
             inline=False
         )
 
-        embed.add_field(
-            name="Discord",
-            value=discord_name,
-            inline=False
-        )
-
-        embed.add_field(
-            name="Country",
-            value=country,
-            inline=True
-        )
-
-        embed.set_footer(
-            text="MK8DX Lounge API"
-        )
-
         await ctx.send(embed=embed)
 
+# ===== Setup =====
 async def setup(bot):
-    await bot.add_cog(LoungeAPI(bot))
+
+    await bot.add_cog(
+        LoungeAPI(bot)
+    )
