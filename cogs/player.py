@@ -21,8 +21,7 @@ class Player(commands.Cog):
         role: discord.Role,
         fetch_func,
         title: str,
-        mode: str,
-        season: int
+        mode: str
     ):
 
         await interaction.response.defer()
