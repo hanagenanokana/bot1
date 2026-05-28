@@ -123,7 +123,6 @@ class Player(commands.Cog):
         self,
         interaction: discord.Interaction,
         role: discord.Role,
-        season: int,
         game_mode: app_commands.Choice[str]
     ):
 
