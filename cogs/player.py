@@ -16,80 +16,80 @@ class Player(commands.Cog):
 
     # ===== 共通 =====
     async def average_command(
-    self,
-    interaction: discord.Interaction,
-    role: discord.Role,
-    fetch_func,
-    title: str,
-    mode: str
-):
+        self,
+        interaction: discord.Interaction,
+        role: discord.Role,
+        fetch_func,
+        title: str,
+        mode: str
+    ):
 
-    await interaction.response.defer()
+        await interaction.response.defer()
 
-    members = [
-        m for m in role.members
-        if not m.bot
-    ]
+        members = [
+            m for m in role.members
+            if not m.bot
+        ]
 
-    if not members:
+        if not members:
 
-        await interaction.followup.send(
-            "メンバーがいません"
-        )
-
-        return
-
-    tasks = []
-
-    for m in members:
-        print("fetch start", m.display_name, m.id)
-
-        tasks.append(
-            fetch_func(
-                m.id,
-                mode
+            await interaction.followup.send(
+                "メンバーがいません"
             )
+
+            return
+
+        tasks = []
+
+        for m in members:
+            print("fetch start", m.display_name, m.id)
+
+            tasks.append(
+                fetch_func(
+                    m.id,
+                    mode
+                )
+            )
+
+        results = await asyncio.gather(*tasks)
+
+        values = []
+        lines = []
+
+        for member, value in zip(members, results):
+
+            if value is None:
+                continue
+
+            values.append(value)
+
+            lines.append(
+                f"{member.display_name}: {value}"
+            )
+
+        if not values:
+
+            await interaction.followup.send(
+                "データ取得失敗"
+            )
+
+            return
+
+        avg = int(statistics.mean(values))
+
+        embed = discord.Embed(
+            title=f"{role.name} {mode}P {title}",
+            description="\n".join(lines),
+            color=0x000000
         )
 
-    results = await asyncio.gather(*tasks)
-
-    values = []
-    lines = []
-
-    for member, value in zip(members, results):
-
-        if value is None:
-            continue
-
-        values.append(value)
-
-        lines.append(
-            f"{member.display_name}: {value}"
+        embed.add_field(
+            name="Average",
+            value=str(avg),
+            inline=False
         )
 
-    if not values:
-
-        await interaction.followup.send(
-            "データ取得失敗"
-        )
-
-        return
-
-    avg = int(statistics.mean(values))
-
-    embed = discord.Embed(
-        title=f"{role.name} {mode}P {title}",
-        description="\n".join(lines),
-        color=0x000000
-    )
-
-    embed.add_field(
-        name="Average",
-        value=str(avg),
-        inline=False
-    )
-
-    await interaction.followup.send(embed=embed)
+        await interaction.followup.send(embed=embed)
 
     # ===== /team_mmr =====
     @app_commands.command(
@@ -102,14 +102,8 @@ class Player(commands.Cog):
     )
     @app_commands.choices(
         game_mode=[
-            app_commands.Choice(
-                name="24p",
-                value="24"
-            ),
-            app_commands.Choice(
-                name="12p",
-                value="12"
-            )
+            app_commands.Choice(name="24p", value="24"),
+            app_commands.Choice(name="12p", value="12")
         ]
     )
     async def team_mmr(
@@ -138,14 +132,8 @@ class Player(commands.Cog):
     )
     @app_commands.choices(
         game_mode=[
-            app_commands.Choice(
-                name="24p",
-                value="24"
-            ),
-            app_commands.Choice(
-                name="12p",
-                value="12"
-            )
+            app_commands.Choice(name="24p", value="24"),
+            app_commands.Choice(name="12p", value="12")
         ]
     )
     async def team_peak(
@@ -165,6 +153,4 @@ class Player(commands.Cog):
 
 async def setup(bot):
 
-    await bot.add_cog(
-        Player(bot)
-    )
+    await bot.add_cog(Player(bot))
