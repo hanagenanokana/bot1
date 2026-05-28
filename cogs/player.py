@@ -39,15 +39,19 @@ class Player(commands.Cog):
 
             return
 
-        results = await asyncio.gather(
-            *[
-                fetch_func(
-                    m.id,
-                    mode
-                )
-                for m in members
-            ]
+       tasks = []
+
+for m in members:
+    print("fetch start", m.display_name, m.id)
+
+    tasks.append(
+        fetch_func(
+            m.id,
+            mode
         )
+    )
+
+results = await asyncio.gather(*tasks)
 
         values = []
         lines = []
